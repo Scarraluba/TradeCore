@@ -11,7 +11,7 @@ import java.util.List;
  * including prices, volumes, and timestamps.
  */
 public class BarSeries {
-    private ArrayList<Bar> bars;
+    private final ArrayList<Bar> bars;
     private Bar lastBar = null;
 
     /**
@@ -28,7 +28,7 @@ public class BarSeries {
      */
     public void addBar(Bar bar) {
         lastBar = bar;
-        bars.add(0, bar);
+        bars.addFirst(bar);
     }
 
     /**
@@ -59,7 +59,7 @@ public class BarSeries {
      * @return the index of the last Bar, or -1 if the series is empty
      */
     public int getLastIndex() {
-        if (bars != null && !bars.isEmpty()) {
+        if (!bars.isEmpty()) {
             return bars.size() - 1;
         } else {
             return -1; // or any other appropriate value
@@ -72,7 +72,7 @@ public class BarSeries {
      * @return the closing price of the last Bar, or -1 if the series is empty
      */
     public double getLastClose() {
-        if (bars != null && !bars.isEmpty()) {
+        if (!bars.isEmpty()) {
             return bars.get(getLastIndex()).getClose();
         } else {
             return -1; // or any other appropriate value
@@ -187,7 +187,7 @@ public class BarSeries {
      * @return the index of the matching Bar, or -1 if not found
      */
     public int iBarShift(long time, boolean exact) {
-        if (bars == null || bars.isEmpty()) {
+        if (bars.isEmpty()) {
             return -1; // Return -1 if bars list is null or empty
         }
 
