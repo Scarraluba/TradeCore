@@ -1,6 +1,5 @@
 package concrete.goonie;
 
-
 import concrete.goonie.symbol.Symbol;
 
 import java.util.List;
@@ -9,6 +8,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 /**
  * Singleton class that manages a collection of {@link Symbol} objects.
  * Provides thread-safe access to the list of symbols and ensures that only one instance of the class is created.
+ * This class is responsible for adding, retrieving, and managing symbols in a thread-safe manner.
  */
 public class Symbols {
 
@@ -41,6 +41,7 @@ public class Symbols {
 
     /**
      * Adds a {@link Symbol} to the list of symbols.
+     * This method ensures that the symbol is added to the thread-safe list of symbols.
      *
      * @param symbol The Symbol object to add.
      */
@@ -50,6 +51,8 @@ public class Symbols {
 
     /**
      * Retrieves a {@link Symbol} from the list by its name.
+     * This method searches the list of symbols and returns the symbol matching the specified name.
+     * If no match is found, it returns {@code null}.
      *
      * @param name The name of the symbol to retrieve.
      * @return The Symbol object matching the specified name, or {@code null} if not found.
@@ -65,6 +68,7 @@ public class Symbols {
 
     /**
      * Returns the number of symbols in the list.
+     * This method counts the number of symbols currently stored in the thread-safe list.
      *
      * @return The number of Symbol objects in the list.
      */
@@ -74,6 +78,7 @@ public class Symbols {
 
     /**
      * Retrieves the list of all {@link Symbol} objects.
+     * This method returns the thread-safe list of all symbol objects in the collection.
      *
      * @return A thread-safe list of Symbol objects.
      */

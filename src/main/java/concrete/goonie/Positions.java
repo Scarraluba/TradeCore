@@ -1,6 +1,5 @@
 package concrete.goonie;
 
-
 import concrete.goonie.account.Account;
 import concrete.goonie.enums.ENUM_POSITION_TYPE;
 import concrete.goonie.symbol.Symbol;
@@ -13,6 +12,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Manages a collection of trading positions.
+ * Provides methods to add, remove, and select positions,
+ * and retrieves statistics about the current open positions.
  */
 public class Positions {
     private List<Position> openPositions = new CopyOnWriteArrayList<>();
@@ -21,13 +22,28 @@ public class Positions {
 
     private static Positions instance;
 
+    /**
+     * Constructor that initializes the instance of the Positions class.
+     */
     public Positions() {
         instance = this;
     }
+
+    /**
+     * Returns the singleton instance of the Positions class.
+     *
+     * @return The singleton instance of Positions.
+     */
     public static Positions getInstance() {
         return instance;
     }
 
+    /**
+     * Sets the singleton instance of the Positions class.
+     *
+     * @param positions The Positions instance to set.
+     * @return The set Positions instance.
+     */
     public static synchronized Positions setInstance(Positions positions) {
         if (instance == null) {
             instance = positions;
@@ -39,6 +55,7 @@ public class Positions {
      * Adds an open position to the collection.
      *
      * @param position The position to add.
+     * @throws IllegalArgumentException If the position is null.
      */
     public void addPosition(Position position) {
         if (position == null) {
@@ -48,10 +65,20 @@ public class Positions {
         positionsHash.put((int) position.getTicket(), position);
     }
 
+    /**
+     * Returns the list of open positions.
+     *
+     * @return The list of open positions.
+     */
     public List<Position> getOpenPositions() {
         return openPositions;
     }
 
+    /**
+     * Returns the hashmap of positions indexed by their ticket number.
+     *
+     * @return The hashmap of positions.
+     */
     public HashMap<Integer, Position> getPositionsHash() {
         return positionsHash;
     }
@@ -122,6 +149,12 @@ public class Positions {
         }
     }
 
+    /**
+     * Retrieves the ticket number of the position at the specified index.
+     *
+     * @param index The index of the position.
+     * @return The ticket number of the position or 0 if index is out of bounds.
+     */
     public long getPositionTicket(int index) {
         Position position = getPositionByIndex(index);
         return position != null ? position.getTicket() : 0;
@@ -131,7 +164,7 @@ public class Positions {
      * Selects an open position for further processing based on the symbol.
      *
      * @param symbol The symbol to search for.
-     * @return True if found, false otherwise.
+     * @return True if the position with the specified symbol is found, false otherwise.
      */
     public boolean getPositionBySymbol(Symbol symbol) {
         for (Position position : openPositions) {
@@ -147,7 +180,7 @@ public class Positions {
      * Selects an open position based on the ticket number.
      *
      * @param ticket The ticket number to search for.
-     * @return True if found, false otherwise.
+     * @return True if the position with the specified ticket number is found, false otherwise.
      */
     public boolean getPositionByTicket(long ticket) {
         for (Position position : openPositions) {
@@ -185,12 +218,11 @@ public class Positions {
     }
 
     /**
-     * Removes the specified position from the collection and adds it to orders.
+     * Removes the specified position from the collection and adds it to the orders.
      *
      * @param position The position to remove.
      */
     public void removePosition(Position position) {
-
         Account.getInstance().getOrders().addOrder(position); // Placeholder, adjust to pass actual order details
         openPositions.remove(position);
     }

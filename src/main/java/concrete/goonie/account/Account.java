@@ -12,15 +12,49 @@ import java.time.LocalDateTime;
  */
 public class Account {
 
+    /**
+     * Object holding account double-based info such as balance, equity, and margin
+     */
     private final AccountInfoDouble accountInfoDouble;
+
+    /**
+     * Object holding account integer-based info such as leverage, login ID, and permissions
+     */
     private final AccountInfoInteger accountInfoInteger;
+
+    /**
+     * Object holding account string-based info such as name, currency, and company
+     */
     private final AccountInfoString accountInfoString;
+
+    /**
+     * Singleton instance of the account
+     */
     private static Account instance;
+
+    /**
+     * List of positions associated with the account
+     */
     private final Positions positions;
+
+    /**
+     * List of orders associated with the account
+     */
     private final Orders orders;
+
+    /**
+     * Set of symbols available or used by the account
+     */
     private final Symbols symbols;
+
+    /**
+     * The time range the account has been active or tracked
+     */
     private LocalDateTime fromDate, toDate;
 
+    /**
+     * Indicates if the account is currently active
+     */
     private boolean activeAccount;
 
     /**
@@ -49,7 +83,7 @@ public class Account {
         setAccountName(name);
         setAccountCurrency(currency);
         setLeverage(leverage);
-        setLimitOrders(50);
+        setLimitOrders(50); // Default order limit
         setMarginFree(deposit);
         setMarginLevel(0);
         setEquity(deposit);
@@ -98,147 +132,202 @@ public class Account {
         }
         return instance;
     }
-
     // ===========================
     // AccountInfoDouble Delegates
     // ===========================
 
-    /** @return the current balance of the account */
+    /**
+     * @return the current balance of the account
+     */
     public double getBalance() {
         return accountInfoDouble.getBalance();
     }
 
-    /** @param balance sets the account balance */
+    /**
+     * @param balance sets the account balance
+     */
     public void setBalance(double balance) {
         accountInfoDouble.setBalance(balance);
     }
 
-    /** @return the account credit */
+    /**
+     * @return the account credit
+     */
     public double getCredit() {
         return accountInfoDouble.getCredit();
     }
 
-    /** @param credit sets the account credit */
+    /**
+     * @param credit sets the account credit
+     */
     public void setCredit(double credit) {
         accountInfoDouble.setCredit(credit);
     }
 
-    /** @return the current profit */
+    /**
+     * @return the current profit
+     */
     public double getProfit() {
         return accountInfoDouble.getProfit();
     }
 
-    /** @param profit sets the account profit */
+    /**
+     * @param profit sets the account profit
+     */
     public void setProfit(double profit) {
         accountInfoDouble.setProfit(profit);
     }
 
-    /** @return the account equity */
+    /**
+     * @return the account equity
+     */
     public double getEquity() {
         return accountInfoDouble.getEquity();
     }
 
-    /** @param equity sets the account equity */
+    /**
+     * @param equity sets the account equity
+     */
     public void setEquity(double equity) {
         accountInfoDouble.setEquity(equity);
     }
 
-    /** @return the used margin */
+    /**
+     * @return the used margin
+     */
     public double getMargin() {
         return accountInfoDouble.getMargin();
     }
 
-    /** @param margin sets the used margin */
+    /**
+     * @param margin sets the used margin
+     */
     public void setMargin(double margin) {
         accountInfoDouble.setMargin(margin);
     }
 
-    /** @return the free margin */
+    /**
+     * @return the free margin
+     */
     public double getMarginFree() {
         return accountInfoDouble.getMarginFree();
     }
 
-    /** @param marginFree sets the free margin */
+    /**
+     * @param marginFree sets the free margin
+     */
     public void setMarginFree(double marginFree) {
         accountInfoDouble.setMarginFree(marginFree);
     }
 
-    /** @return the margin level */
+    /**
+     * @return the margin level
+     */
     public double getMarginLevel() {
         return accountInfoDouble.getMarginLevel();
     }
 
-    /** @param marginLevel sets the margin level */
+    /**
+     * @param marginLevel sets the margin level
+     */
     public void setMarginLevel(double marginLevel) {
         accountInfoDouble.setMarginLevel(marginLevel);
     }
 
-    /** @return margin call threshold */
+    /**
+     * @return margin call threshold
+     */
     public double getMarginSOMarginCall() {
         return accountInfoDouble.getMarginSOMarginCall();
     }
 
-    /** @param marginSOMarginCall sets the margin call threshold */
+    /**
+     * @param marginSOMarginCall sets the margin call threshold
+     */
     public void setMarginSOMarginCall(double marginSOMarginCall) {
         accountInfoDouble.setMarginSOMarginCall(marginSOMarginCall);
     }
 
-    /** @return stop out margin level */
+    /**
+     * @return stop out margin level
+     */
     public double getMarginSOMarginStopOut() {
         return accountInfoDouble.getMarginSOMarginStopOut();
     }
 
-    /** @param marginSOMarginStopOut sets the stop out margin level */
+    /**
+     * @param marginSOMarginStopOut sets the stop out margin level
+     */
     public void setMarginSOMarginStopOut(double marginSOMarginStopOut) {
         accountInfoDouble.setMarginSOMarginStopOut(marginSOMarginStopOut);
     }
 
-    /** @return initial margin */
+    /**
+     * @return initial margin
+     */
     public double getMarginInitial() {
         return accountInfoDouble.getMarginInitial();
     }
 
-    /** @param marginInitial sets the initial margin */
+    /**
+     * @param marginInitial sets the initial margin
+     */
     public void setMarginInitial(double marginInitial) {
         accountInfoDouble.setMarginInitial(marginInitial);
     }
 
-    /** @return maintenance margin */
+    /**
+     * @return maintenance margin
+     */
     public double getMarginMaintenance() {
         return accountInfoDouble.getMarginMaintenance();
     }
 
-    /** @param marginMaintenance sets the maintenance margin */
+    /**
+     * @param marginMaintenance sets the maintenance margin
+     */
     public void setMarginMaintenance(double marginMaintenance) {
         accountInfoDouble.setMarginMaintenance(marginMaintenance);
     }
 
-    /** @return the account's total assets */
+    /**
+     * @return the account's total assets
+     */
     public double getAssets() {
         return accountInfoDouble.getAssets();
     }
 
-    /** @param assets sets the total assets */
+    /**
+     * @param assets sets the total assets
+     */
     public void setAssets(double assets) {
         accountInfoDouble.setAssets(assets);
     }
 
-    /** @return the account's liabilities */
+    /**
+     * @return the account's liabilities
+     */
     public double getLiabilities() {
         return accountInfoDouble.getLiabilities();
     }
 
-    /** @param liabilities sets the liabilities */
+    /**
+     * @param liabilities sets the liabilities
+     */
     public void setLiabilities(double liabilities) {
         accountInfoDouble.setLiabilities(liabilities);
     }
 
-    /** @return blocked commission amount */
+    /**
+     * @return blocked commission amount
+     */
     public double getCommissionBlocked() {
         return accountInfoDouble.getCommissionBlocked();
     }
 
-    /** @param commissionBlocked sets blocked commission */
+    /**
+     * @param commissionBlocked sets blocked commission
+     */
     public void setCommissionBlocked(double commissionBlocked) {
         accountInfoDouble.setCommissionBlocked(commissionBlocked);
     }
@@ -247,62 +336,86 @@ public class Account {
     // AccountInfoInteger Delegates
     // ============================
 
-    /** @return the login ID */
+    /**
+     * @return the login ID
+     */
     public long getLogin() {
         return accountInfoInteger.getLogin();
     }
 
-    /** @param login sets the login ID */
+    /**
+     * @param login sets the login ID
+     */
     public void setLogin(long login) {
         accountInfoInteger.setLogin(login);
     }
 
-    /** @return the account leverage */
+    /**
+     * @return the account leverage
+     */
     public long getLeverage() {
         return accountInfoInteger.getLeverage();
     }
 
-    /** @param leverage sets the account leverage */
+    /**
+     * @param leverage sets the account leverage
+     */
     public void setLeverage(long leverage) {
         accountInfoInteger.setLeverage(leverage);
     }
 
-    /** @return maximum number of limit orders */
+    /**
+     * @return maximum number of limit orders
+     */
     public int getLimitOrders() {
         return accountInfoInteger.getLimitOrders();
     }
 
-    /** @param limitOrders sets the max number of limit orders */
+    /**
+     * @param limitOrders sets the max number of limit orders
+     */
     public void setLimitOrders(int limitOrders) {
         accountInfoInteger.setLimitOrders(limitOrders);
     }
 
-    /** @return true if trading is allowed */
+    /**
+     * @return true if trading is allowed
+     */
     public boolean isTradeAllowed() {
         return accountInfoInteger.isTradeAllowed();
     }
 
-    /** @param tradeAllowed enables or disables trading */
+    /**
+     * @param tradeAllowed enables or disables trading
+     */
     public void setTradeAllowed(boolean tradeAllowed) {
         accountInfoInteger.setTradeAllowed(tradeAllowed);
     }
 
-    /** @return true if expert advisors are allowed */
+    /**
+     * @return true if expert advisors are allowed
+     */
     public boolean isTradeExpert() {
         return accountInfoInteger.isTradeExpert();
     }
 
-    /** @param tradeExpert enables or disables expert trading */
+    /**
+     * @param tradeExpert enables or disables expert trading
+     */
     public void setTradeExpert(boolean tradeExpert) {
         accountInfoInteger.setTradeExpert(tradeExpert);
     }
 
-    /** @return number of digits used for currency formatting */
+    /**
+     * @return number of digits used for currency formatting
+     */
     public int getCurrencyDigits() {
         return accountInfoInteger.getCurrencyDigits();
     }
 
-    /** @param currencyDigits sets the number of currency digits */
+    /**
+     * @param currencyDigits sets the number of currency digits
+     */
     public void setCurrencyDigits(int currencyDigits) {
         accountInfoInteger.setCurrencyDigits(currencyDigits);
     }
@@ -311,42 +424,58 @@ public class Account {
     // AccountInfoString Delegates
     // ===========================
 
-    /** @return account name */
+    /**
+     * @return account name
+     */
     public String getAccountName() {
         return accountInfoString.getAccountName();
     }
 
-    /** @param accountName sets the account name */
+    /**
+     * @param accountName sets the account name
+     */
     public void setAccountName(String accountName) {
         accountInfoString.setAccountName(accountName);
     }
 
-    /** @return account server name */
+    /**
+     * @return account server name
+     */
     public String getAccountServer() {
         return accountInfoString.getAccountServer();
     }
 
-    /** @param accountServer sets the server name */
+    /**
+     * @param accountServer sets the server name
+     */
     public void setAccountServer(String accountServer) {
         accountInfoString.setAccountServer(accountServer);
     }
 
-    /** @return base currency of the account */
+    /**
+     * @return base currency of the account
+     */
     public String getAccountCurrency() {
         return accountInfoString.getAccountCurrency();
     }
 
-    /** @param accountCurrency sets the base currency */
+    /**
+     * @param accountCurrency sets the base currency
+     */
     public void setAccountCurrency(String accountCurrency) {
         accountInfoString.setAccountCurrency(accountCurrency);
     }
 
-    /** @return company associated with the account */
+    /**
+     * @return company associated with the account
+     */
     public String getAccountCompany() {
         return accountInfoString.getAccountCompany();
     }
 
-    /** @param accountCompany sets the account's company */
+    /**
+     * @param accountCompany sets the account's company
+     */
     public void setAccountCompany(String accountCompany) {
         accountInfoString.setAccountCompany(accountCompany);
     }
@@ -355,41 +484,57 @@ public class Account {
     // Other Accessors
     // ======================
 
-    /** @return associated open positions */
+    /**
+     * @return associated open positions
+     */
     public Positions getPositions() {
         return positions;
     }
-
+    /**
+     * @return associated closed positions
+     */
     public Orders getOrders() {
         return orders;
     }
 
-    /** @return symbols used in trading */
+    /**
+     * @return symbols used in trading
+     */
     public Symbols getSymbols() {
         return symbols;
     }
 
-    /** @return true if account is marked active */
+    /**
+     * @return true if account is marked active
+     */
     public boolean isActiveAccount() {
         return activeAccount;
     }
 
-    /** @return account start date */
+    /**
+     * @return account start date
+     */
     public LocalDateTime getFromDate() {
         return fromDate;
     }
 
-    /** @param fromDate sets the account's start date */
+    /**
+     * @param fromDate sets the account's start date
+     */
     public void setFromDate(LocalDateTime fromDate) {
         this.fromDate = fromDate;
     }
 
-    /** @return account end date */
+    /**
+     * @return account end date
+     */
     public LocalDateTime getToDate() {
         return toDate;
     }
 
-    /** @param toDate sets the account's end date */
+    /**
+     * @param toDate sets the account's end date
+     */
     public void setToDate(LocalDateTime toDate) {
         this.toDate = toDate;
     }

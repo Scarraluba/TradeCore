@@ -10,6 +10,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Manages a collection of orders in the trading system.
+ * Provides functionality for adding, selecting, and analyzing orders.
  */
 public class Orders {
 
@@ -17,14 +18,28 @@ public class Orders {
     private Order selectedOrder;
     private static Orders instance;
 
+    /**
+     * Constructor that initializes the Orders instance.
+     */
     public Orders() {
         instance = this;
     }
 
+    /**
+     * Gets the singleton instance of the Orders class.
+     *
+     * @return The Orders instance.
+     */
     public static Orders getInstance() {
         return instance;
     }
 
+    /**
+     * Sets the singleton instance of the Orders class.
+     *
+     * @param positions The Orders instance to set.
+     * @return The singleton instance of Orders.
+     */
     public static synchronized Orders setInstance(Orders positions) {
         if (instance == null) {
             instance = positions;
@@ -195,6 +210,11 @@ public class Orders {
         orders.clear();
     }
 
+    /**
+     * Retrieves the list of all orders.
+     *
+     * @return The list of all orders.
+     */
     public List<Order> getOrders() {
         return orders;
     }

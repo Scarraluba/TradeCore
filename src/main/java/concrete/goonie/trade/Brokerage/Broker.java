@@ -1,6 +1,5 @@
 package concrete.goonie.trade.Brokerage;
 
-
 import concrete.goonie.Positions;
 import concrete.goonie.account.Account;
 import concrete.goonie.enums.ENUM_ORDER_TYPE;
@@ -15,20 +14,70 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import static concrete.goonie.enums.ENUM_ORDER_TYPE.*;
 
-public class MT5Broker {
+/**
+ * Broker class represents a brokerage system that manages orders, trades, and positions for a specific broker.
+ * It supports various features such as managing pending orders, calculating swaps, and handling trade conditions.
+ */
+public class Broker {
+
+    /**
+     * The name of the broker.
+     */
     private String brokerName;
+
+    /**
+     * A map to hold pending orders, keyed by their unique order ID.
+     */
     private Map<Integer, PendingOrder> pendingOrders;
+
+    /**
+     * The leverage provided by the broker.
+     */
     private double leverage;
+
+    /**
+     * The commission structure applied by the broker.
+     */
     private Commission commissionStructure;
+
+    /**
+     * The multiplier used to calculate the spread for a trade.
+     */
     private double spreadMultiplier;
+
+    /**
+     * The risk management settings of the broker.
+     */
     private RiskManagement riskManagement;
+
+    /**
+     * The server time used to simulate the passage of time and perform time-based operations.
+     */
     private LocalDateTime serverTime;
+
+    /**
+     * The swap rate for long positions.
+     */
     private double swapLong;
+
+    /**
+     * The swap rate for short positions.
+     */
     private double swapShort;
 
-    public MT5Broker(String brokerName, double initialBalance,
-                     double leverage, Commission commissionStructure,
-                     double spreadMultiplier, RiskManagement riskManagement) {
+    /**
+     * Constructs a Broker object with the specified parameters.
+     *
+     * @param brokerName          The name of the broker.
+     * @param initialBalance      The initial balance of the broker.
+     * @param leverage            The leverage provided by the broker.
+     * @param commissionStructure The commission structure applied by the broker.
+     * @param spreadMultiplier    The multiplier used to calculate the spread.
+     * @param riskManagement      The risk management settings for the broker.
+     */
+    public Broker(String brokerName, double initialBalance,
+                  double leverage, Commission commissionStructure,
+                  double spreadMultiplier, RiskManagement riskManagement) {
         this.brokerName = brokerName;
         this.pendingOrders = new HashMap<>();
         this.leverage = leverage;
@@ -40,8 +89,15 @@ public class MT5Broker {
         this.swapShort = 0;
     }
 
+    /**
+     * Updates market data for a specific symbol (such as bid and ask prices).
+     * This method also triggers actions like updating open trades, checking pending orders, and calculating swaps.
+     *
+     * @param symbol The symbol to update.
+     * @param bid    The current bid price for the symbol.
+     * @param ask    The current ask price for the symbol.
+     */
     public void updateMarketData(Symbol symbol, double bid, double ask) {
-
         symbol.updatePrices(bid, ask);
 
         // Update open trades for this symbol
@@ -50,62 +106,65 @@ public class MT5Broker {
         // Check pending orders
         checkPendingOrders(symbol, bid, ask);
 
-        // Calculate swaps at end of day
-        if (serverTime.getHour() == 22 && serverTime.getMinute() == 0) { // Typically swaps are applied at 22:00 server time
+        // Calculate swaps at the end of the day (typically 22:00 server time)
+        if (serverTime.getHour() == 22 && serverTime.getMinute() == 0) {
             calculateSwaps();
         }
 
         serverTime = serverTime.plusMinutes(1); // Simulate time passing
     }
 
+    /**
+     * Checks pending orders to see if they should be triggered based on market conditions.
+     * If an order is triggered, it executes the trade and removes the pending order.
+     *
+     * @param symbol The symbol associated with the pending orders.
+     * @param bid    The current bid price.
+     * @param ask    The current ask price.
+     */
     private void checkPendingOrders(Symbol symbol, double bid, double ask) {
         Iterator<Map.Entry<Integer, PendingOrder>> iterator = pendingOrders.entrySet().iterator();
         while (iterator.hasNext()) {
             Map.Entry<Integer, PendingOrder> entry = iterator.next();
             PendingOrder order = entry.getValue();
 
-            if (order.symbol.equals(symbol)) {
+            Symbol orderSymbol = order.getSymbol();
+            if (orderSymbol.equals(symbol)) {
                 boolean triggered = false;
+                double price = order.getPrice();
+                ENUM_ORDER_TYPE type = order.getType();
 
-                switch (order.type) {
-                    case LIMIT_BUY:
-                        triggered = (bid <= order.price);
+                switch (type) {
+                    case LIMIT_BUY, STOP_SELL:
+                        triggered = (bid <= price);
                         break;
-                    case LIMIT_SELL:
-                        triggered = (ask >= order.price);
-                        break;
-                    case STOP_BUY:
-                        triggered = (ask >= order.price);
-                        break;
-                    case STOP_SELL:
-                        triggered = (bid <= order.price);
+                    case LIMIT_SELL, STOP_BUY:
+                        triggered = (ask >= price);
                         break;
                     default:
                         break;
                 }
 
                 // Check expiration
-                boolean expired = order.expiration != null && serverTime.isAfter(order.expiration);
+                boolean expired = order.getExpiration() != null && serverTime.isAfter(order.getExpiration());
 
                 if (triggered && !expired) {
                     // Execute pending order
-                    ENUM_ORDER_TYPE marketType = (order.type == LIMIT_BUY || order.type == STOP_BUY)
+                    ENUM_ORDER_TYPE marketType = (type == LIMIT_BUY || type == STOP_BUY)
                             ? MARKET_BUY : MARKET_SELL;
 
                     double openPrice = (marketType == MARKET_BUY) ? ask : bid;
 
                     // Calculate commission
-                    Symbol symbolInfo = order.symbol;
-                    double tradeValue = symbolInfo.getTradeContractSize() * order.volume * openPrice;
-                    double commission = commissionStructure.calculateCommission(order.volume, tradeValue);
+                    double volume = order.getVolume();
+                    double tradeValue = orderSymbol.getTradeContractSize() * volume * openPrice;
+                    double commission = commissionStructure.calculateCommission(volume, tradeValue);
 
                     // Create and open the trade
                     long ticket = ThreadLocalRandom.current().nextLong(319, 9869);
-                    ;
-                    Position trade = new Position(ticket, order.symbol, order.volume, marketType,
-                            openPrice, order.stopLoss, order.takeProfit,
-                            commission, order.comment);
-
+                    Position trade = new Position(ticket, orderSymbol, volume, marketType,
+                            openPrice, order.getStopLoss(), order.getTakeProfit(),
+                            commission, order.getComment());
 
                     final Account account = Account.getInstance();
                     account.getPositions().addPosition(trade);
@@ -123,28 +182,40 @@ public class MT5Broker {
         }
     }
 
+    /**
+     * Updates the status of open trades by adjusting the current price and calculating profits.
+     *
+     * @param symbol The symbol for which open trades need to be updated.
+     * @param bid    The current bid price.
+     * @param ask    The current ask price.
+     */
     private void updateOpenTrades(Symbol symbol, double bid, double ask) {
-
         for (Position trade : Account.getInstance().getPositions().getOpenPositions()) {
             if (trade.getSymbol().equals(symbol)) {
-                boolean whatTypeIsIt = trade.getType() == MARKET_BUY.ordinal() ||
+                boolean isBuyType = trade.getType() == MARKET_BUY.ordinal() ||
                         trade.getType() == LIMIT_BUY.ordinal() || trade.getType() == STOP_BUY.ordinal();
 
-                if (whatTypeIsIt) {
+                if (isBuyType) {
                     trade.setPriceCurrent(bid);
                 } else {
                     trade.setPriceCurrent(ask);
                 }
+
                 // Update profit
                 trade.setProfit(trade.calculateProfit(bid, ask));
 
-                // Check trade conditions (SL/TP)
+                // Check trade conditions (Stop Loss / Take Profit)
                 checkTradeConditions(trade);
             }
         }
         calculateEquityAndMargin();
     }
 
+    /**
+     * Checks the conditions (Stop Loss and Take Profit) of an open trade to determine whether it should be closed.
+     *
+     * @param trade The trade to check.
+     */
     private void checkTradeConditions(Position trade) {
         Symbol symbolInfo = trade.getSymbol();
         double bid = symbolInfo.getBid();
@@ -178,8 +249,13 @@ public class MT5Broker {
         }
     }
 
+    /**
+     * Closes a trade by its ticket and calculates the final profit or loss.
+     *
+     * @param ticket     The ticket ID of the trade to close.
+     * @param closePrice The price at which the trade is closed.
+     */
     public void closeTrade(long ticket, double closePrice) {
-
         Account account = Account.getInstance();
         Positions positions = account.getPositions();
         positions.getPositionByTicket(ticket);
@@ -188,6 +264,7 @@ public class MT5Broker {
         if (trade == null) {
             throw new IllegalArgumentException("Trade not found: " + ticket);
         }
+
         // Calculate final profit
         trade.setProfit(trade.calculateProfit(closePrice, closePrice));
 
@@ -205,14 +282,17 @@ public class MT5Broker {
         calculateEquityAndMargin();
     }
 
+    /**
+     * Calculates swap rates for all open positions at the end of each day.
+     */
     private void calculateSwaps() {
         final Account account = Account.getInstance();
         for (Position trade : account.getPositions().getOpenPositions()) {
             Symbol symbolInfo = trade.getSymbol();
-            boolean whatTypeIsIt = trade.getType() == MARKET_BUY.ordinal() ||
+            boolean isBuyType = trade.getType() == MARKET_BUY.ordinal() ||
                     trade.getType() == LIMIT_BUY.ordinal() || trade.getType() == STOP_BUY.ordinal();
 
-            double swapRate = whatTypeIsIt ? symbolInfo.getSwapLong() : symbolInfo.getSwapShort();
+            double swapRate = isBuyType ? symbolInfo.getSwapLong() : symbolInfo.getSwapShort();
 
             // Swap is typically calculated per lot per night
             double swap = swapRate * trade.getVolume();
@@ -223,6 +303,9 @@ public class MT5Broker {
         calculateEquityAndMargin();
     }
 
+    /**
+     * Recalculates the equity, margin, and free margin of the account based on open positions.
+     */
     private void calculateEquityAndMargin() {
         Account account = Account.getInstance();
         Positions positions = account.getPositions();
@@ -239,6 +322,7 @@ public class MT5Broker {
 
         double totalMargin = openTrades.values().stream()
                 .mapToDouble(t -> calculateRequiredMargin(t.getSymbol(), t.getVolume(), ENUM_ORDER_TYPE.values()[t.getType()]))
+
                 .sum();
 
         double balance = account.getBalance();
@@ -251,7 +335,15 @@ public class MT5Broker {
         account.setMarginLevel((margin > 0) ? (equity / margin) * 100 : 0);
     }
 
-    // Calculate required margin for a trade (more sophisticated calculation)
+    /**
+     * Calculates the required margin for a trade.
+     * This calculation takes into account factors like contract size, leverage, and account type.
+     *
+     * @param symbol The symbol for the trade.
+     * @param volume The volume of the trade.
+     * @param type   The type of the order (e.g., BUY/SELL).
+     * @return The required margin for the trade.
+     */
     private double calculateRequiredMargin(Symbol symbol, double volume, ENUM_ORDER_TYPE type) {
 
         // Base margin calculation
@@ -266,18 +358,11 @@ public class MT5Broker {
 
         // Check for hedged positions
         boolean hasOppositePosition = Account.getInstance().getPositions().getPositionsHash().values().stream()
-                .anyMatch(t -> {
-                    final ENUM_ORDER_TYPE orderType = values()[t.getType()];
-                    return t.getSymbol().equals(symbol) &&
-                            ((type == MARKET_BUY && orderType == MARKET_SELL || orderType == LIMIT_SELL || orderType == STOP_SELL)) ||
-                            (type == MARKET_SELL && (orderType == MARKET_BUY || orderType == LIMIT_BUY || orderType == STOP_BUY));
-                });
-        ;
+                .anyMatch(position -> position.getSymbol().equals(symbol) && position.getType() != type.ordinal());
 
-        if (hasOppositePosition) {
-            margin *= symbol.getMarginHedged(); // Apply hedged margin factor
-        }
-
-        return margin;
+        return hasOppositePosition ? margin * 0.5 : margin;
     }
+
+    // Getters and setters for brokerName, leverage, etc.
+
 }

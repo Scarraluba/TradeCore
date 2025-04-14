@@ -2,26 +2,48 @@ package concrete.goonie.symbol;
 
 import concrete.goonie.enums.ENUM_TIMEFRAME;
 
+/**
+ * The Symbol class represents a financial symbol (such as a trading pair) and its associated timeframes.
+ * It encapsulates various pieces of symbol-related information such as period frames, symbol-specific values (e.g.,
+ * SymbolInfoDouble, SymbolInfoInteger, and SymbolInfoString) for managing data related to the symbol.
+ */
 public class Symbol {
-    private ENUM_TIMEFRAME periodFrames;
-    private final SymbolInfoDouble symbolInfoDouble = new SymbolInfoDouble();
-    private final SymbolInfoInteger symbolInfoInteger = new SymbolInfoInteger();
-    private final SymbolInfoString symbolInfoString = new SymbolInfoString();
 
+    private ENUM_TIMEFRAME periodFrames;  // Timeframe for the symbol
+    private final SymbolInfoDouble symbolInfoDouble = new SymbolInfoDouble(); // Symbol information (double type)
+    private final SymbolInfoInteger symbolInfoInteger = new SymbolInfoInteger(); // Symbol information (integer type)
+    private final SymbolInfoString symbolInfoString = new SymbolInfoString(); // Symbol information (string type)
+
+    /**
+     * Constructs a new Symbol instance with the specified period frame.
+     *
+     * @param periodFrames the timeframe (period) for the symbol, such as 1 minute, 5 minutes, 1 hour, etc.
+     */
     public Symbol(ENUM_TIMEFRAME periodFrames) {
         this.periodFrames = periodFrames;
     }
 
     // Timeframe methods
+
+    /**
+     * Gets the period frame (timeframe) associated with this symbol.
+     *
+     * @return the ENUM_TIMEFRAME representing the symbol's period
+     */
     public ENUM_TIMEFRAME getPeriodFrames() {
         return periodFrames;
     }
 
+    /**
+     * Sets the period frame (timeframe) for this symbol.
+     *
+     * @param periodFrames the ENUM_TIMEFRAME to set for the symbol
+     */
     public void setPeriodFrames(ENUM_TIMEFRAME periodFrames) {
         this.periodFrames = periodFrames;
     }
 
-    // SymbolInfoDouble delegates
+// SymbolInfoDouble delegates
     public double getBid() {
         return symbolInfoDouble.getBid();
     }
